@@ -4,8 +4,8 @@
 #SBATCH -o outs/out-%j.txt
 #SBATCH -p bigmem
 #SBATCH -e errors/error-%j.txt
-#SBATCH -c 8
-
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=32
 
 # script to run ANGSD on hapmap2 bam files
 module load angsd
@@ -16,13 +16,13 @@ windowsize=1000
 step=500
 nInd=$( wc -l data/"$taxon"_list.txt | cut -f 1 -d " " )
 n=$( expr 2 \* $nInd )
-minInd=1
+minperc=0.8
+minInd=$( printf "%.0f" $(echo "scale=2;$minperc*$nInd" | bc))
 glikehood=1
 minMapQ=30
 cpu=32
-range="-r 10:"
-
-echo "taxon: $taxon n: $n" range: $range 1>&2
+range=""
+#range="-r 10:"
 
 #(estimate an SFS)
 # -bam list of paths to bamfiles you want to use
@@ -39,9 +39,9 @@ echo "taxon: $taxon n: $n" range: $range 1>&2
 # -P 8 use 8 threads
 # -indF individiual inbreeding coefficient. for inbred lines just make a files of "1" on each line for each bamfile. otherwise use ngsF to estimate (see inbreeding.sh script)
 
-command="-bam data/"$taxon"_list.txt -out temp/"$taxon" -indF data/$taxon.indF -doSaf 2 -uniqueOnly 0 -anc data/TRIP.fa.gz -minMapQ $minMapQ -minQ 20 -nInd $nInd -minInd $minInd -baq 1 -ref /home/jri/genomes/Zea_mays.AGPv2.17.dna.toplevel.fa -GL $glikehood -P $cpu -doCounts -doDepth -dumpCounts $range"
+command1="-bam data/"$taxon"_list.txt -out temp/"$taxon" -doMajorMinor 1 -doMaf 1 -indF data/$taxon.indF -doSaf 1 -uniqueOnly 0 -anc data/TRIP.fa.gz -minMapQ $minMapQ -minQ 20 -nInd $nInd -minInd $minInd -baq 1 -ref /home/jri/genomes/Zea_mays.AGPv2.17.dna.toplevel.fa -GL $glikehood -P $cpu  $range"
 echo $command
-$angsdir/angsd $command
+# $angsdir/angsd $command1
 
 # not clear to me how to run folded, as -fold option seems to be deprecated?
 # temp/"$taxon"_pest.saf output file from above run; prior on SFS?
@@ -52,7 +52,9 @@ $angsdir/angsd $command
 	# -0.133730 -3.724029 -4.246469 -4.981319 -5.453217 -5.803669 -6.076224 -6.330416 -6.501992 -6.713127 -6.882129 -6.970549 -7.289374 -7.434923 -7.308903 -7.057695 -7.457825 -7.740251 -7.665521 -7.683324 -7.788163 -7.702094 -7.562837 -7.491339 -7.416449 -7.364919 -7.107873 -6.870063 -6.458559 -6.044445 -2.994086
 	# which corresponds to exp(-0.13)~0.9 or 90% of sites are fixed for ancestral allele, and exp(-2.994086) or ~5% are fixed for derived allele. 
 	# remaining 5% are polymorphic
-$angsdir/misc/emOptim2 temp/"$taxon".saf $n -P $cpu  > results/"$taxon".sfs
+command2="temp/"$taxon".saf $n -P $cpu" 
+echo $command2
+$angsdir/misc/emOptim2 $command2 > results/"$taxon".sfs
 
 #(calculate thetas)
 # this now uses the SFS to calculate stats
@@ -66,11 +68,15 @@ $angsdir/misc/emOptim2 temp/"$taxon".saf $n -P $cpu  > results/"$taxon".sfs
 #10      3371    -8.822116       -10.395367      -7.431857       -14.041094      -11.062746
 #10      3372    -8.840759       -10.415518      -7.448764       -14.064022      -11.082968
 #10	26926	-1.480456	-0.671793	-211.328599	-0.694813	-0.683237
-$angsdir/angsd -bam data/"$taxon"_list.txt -out results/"$taxon" -doThetas 1 -doSaf 2 -GL $glikehood -indF data/$taxon.indF -pest results/"$taxon".sfs -anc data/TRIP.fa.gz -uniqueOnly 0 -minMapQ $minMapQ -minQ 20 -nInd $nInd -minInd $minInd -baq 1 -ref /home/jri/genomes/Zea_mays.AGPv2.17.dna.toplevel.fa -P $cpu -doCounts -doDepth -dumpCounts $range
+command3="-bam data/"$taxon"_list.txt -out results/"$taxon" -doThetas 1 -doSaf 1 -GL $glikehood -indF data/$taxon.indF -pest results/"$taxon".sfs -anc data/TRIP.fa.gz -uniqueOnly 0 -minMapQ $minMapQ -minQ 20 -nInd $nInd -minInd $minInd -baq 1 -ref /home/jri/genomes/Zea_mays.AGPv2.17.dna.toplevel.fa -P $cpu $range"
+echo $command3
+$angsdir/angsd $command3 
 
 #(calculate Tajimas.)
 # this estiamtes TajD and other stats and makes a sortof bedfile output
-$angsdir/misc/thetaStat make_bed results/"$taxon".thetas.gz results/"$taxon"
+command4=" make_bed results/"$taxon".thetas.gz results/"$taxon""
+echo $command4
+$angsdir/misc/thetaStat $command4 
 
 # this does a sliding window analysis
 # -nChr number of chromosomes
@@ -80,4 +86,6 @@ $angsdir/misc/thetaStat make_bed results/"$taxon".thetas.gz results/"$taxon"
 #(569,1175)(4000,5001)(4000,5000)        10      4500    4.536109        4.774793        1.392152        9.523595        7.149193        0.169980        1.0433
 #(963,1565)(4706,5500)(4500,5500)        10      5000    2.850285        2.665415        1.624860        4.608032        3.636723        -0.196105       0.4532
 # with information for each window (see ANGSD online documentation for some explanation of columns)
-$angsdir/misc/thetaStat do_stat results/"$taxon" -nChr $n -win $windowsize -step $step
+command5="do_stat results/"$taxon" -nChr $n -win $windowsize -step $step"
+echo $command5
+$angsdir/misc/thetaStat 
