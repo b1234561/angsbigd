@@ -7,6 +7,9 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=32
 
+set -e
+set -u
+
 # script to run ANGSD on hapmap2 bam files
 module load angsd
 
