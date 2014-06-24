@@ -1,5 +1,5 @@
 #!/bin/bash -l
-#SBATCH -D /home/jri/projects/bigd/angsbigd/
+#SBATCH -D /home/adurvasu/angsbigd/
 #SBATCH -J angsdo
 #SBATCH -o outs/out-%j.txt
 #SBATCH -p bigmem
@@ -8,9 +8,12 @@
 #SBATCH --ntasks-per-node=32
 
 # script to run ANGSD on hapmap2 bam files
+set -e
+set -u
+
 module load angsd
 
-angsdir=/home/jri/src/angsd0.588
+angsdir=/home/adurvasu/angsd0.602
 taxon=$1
 windowsize=1000
 step=500
