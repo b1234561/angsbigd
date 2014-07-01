@@ -11,7 +11,7 @@
 set -e
 set -u
 
-module load angsd
+#module load angsd
 
 angsdir=/home/jri/angsd0.602
 taxon=$1
@@ -43,8 +43,8 @@ range=""
 # -indF individiual inbreeding coefficient. for inbred lines just make a files of "1" on each line for each bamfile. otherwise use ngsF to estimate (see inbreeding.sh script)
 
 command1="-bam data/"$taxon"_list.txt -out temp/"$taxon" -doMajorMinor 1 -doMaf 1 -indF data/$taxon.indF -doSaf 1 -uniqueOnly 0 -anc data/TRIP.fa.gz -minMapQ $minMapQ -minQ 20 -nInd $nInd -minInd $minInd -baq 1 -ref /home/jri/genomes/Zea_mays.AGPv2.17.dna.toplevel.fa -GL $glikehood -P $cpu  $range"
-echo $command
-# $angsdir/angsd $command1
+echo $command1
+$angsdir/angsd $command1
 
 # not clear to me how to run folded, as -fold option seems to be deprecated?
 # temp/"$taxon"_pest.saf output file from above run; prior on SFS?
