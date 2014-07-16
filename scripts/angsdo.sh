@@ -42,7 +42,7 @@ range=""
 # -P 8 use 8 threads
 # -indF individiual inbreeding coefficient. for inbred lines just make a files of "1" on each line for each bamfile. otherwise use ngsF to estimate (see inbreeding.sh script)
 
-command1="-bam data/"$taxon"_list.txt -out temp/"$taxon" -doMajorMinor 1 -doMaf 1 -indF data/$taxon.indF -doSaf 1 -uniqueOnly 0 -anc data/TRIP.fa.gz -minMapQ $minMapQ -minQ 20 -nInd $nInd -minInd $minInd -baq 1 -ref /home/jri/genomes/Zea_mays.AGPv2.17.dna.toplevel.fa -GL $glikehood -P $cpu  $range"
+command1="-bam data/"$taxon"_list.txt -out temp/"$taxon" -doMajorMinor 1 -doMaf 1 -indF data/$taxon.indF -doSaf 2 -uniqueOnly 0 -anc data/TRIP.fa.gz -minMapQ $minMapQ -minQ 20 -nInd $nInd -minInd $minInd -baq 1 -ref /home/jri/genomes/Zea_mays.AGPv2.17.dna.toplevel.fa -GL $glikehood -P $cpu  $range"
 echo $command1
 $angsdir/angsd $command1
 
@@ -71,7 +71,7 @@ $angsdir/misc/emOptim2 $command2 > results/"$taxon".sfs
 #10      3371    -8.822116       -10.395367      -7.431857       -14.041094      -11.062746
 #10      3372    -8.840759       -10.415518      -7.448764       -14.064022      -11.082968
 #10	26926	-1.480456	-0.671793	-211.328599	-0.694813	-0.683237
-command3="-bam data/"$taxon"_list.txt -out results/"$taxon" -doThetas 1 -doSaf 1 -GL $glikehood -indF data/$taxon.indF -pest results/"$taxon".sfs -anc data/TRIP.fa.gz -uniqueOnly 0 -minMapQ $minMapQ -minQ 20 -nInd $nInd -minInd $minInd -baq 1 -ref /home/jri/genomes/Zea_mays.AGPv2.17.dna.toplevel.fa -P $cpu $range"
+command3="-bam data/"$taxon"_list.txt -out results/"$taxon" -doThetas 1 -doSaf 2 -GL $glikehood -indF data/$taxon.indF -pest results/"$taxon".sfs -anc data/TRIP.fa.gz -uniqueOnly 0 -minMapQ $minMapQ -minQ 20 -nInd $nInd -minInd $minInd -baq 1 -ref /home/jri/genomes/Zea_mays.AGPv2.17.dna.toplevel.fa -P $cpu $range"
 echo $command3
 $angsdir/angsd $command3 
 
