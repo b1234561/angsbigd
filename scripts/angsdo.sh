@@ -13,7 +13,7 @@ set -u
 
 #module load angsd
 
-angsdir=/home/jri/angsd0.602
+angsdir=/home/jri/src/angsd0.609
 taxon=$1
 windowsize=1000
 step=500
@@ -24,8 +24,8 @@ minInd=$( printf "%.0f" $(echo "scale=2;$minperc*$nInd" | bc))
 glikehood=1
 minMapQ=30
 cpu=32
-range=""
-#range="-r 10:"
+#range=""
+range="-rf data/rangefile.txt"
 
 #(estimate an SFS)
 # -bam list of paths to bamfiles you want to use
