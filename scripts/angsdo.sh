@@ -11,9 +11,7 @@
 set -e
 set -u
 
-#module load angsd
-
-angsdir=/home/jri/src/angsd0.609
+angsdir=/home/jri/src/angsd/
 taxon=$1
 windowsize=1000
 step=500
@@ -41,7 +39,6 @@ range="-rf data/rangefile.txt"
 # -r 10:1- ony analyze this range (here all of chromosome 10)
 # -P 8 use 8 threads
 # -indF individiual inbreeding coefficient. for inbred lines just make a files of "1" on each line for each bamfile. otherwise use ngsF to estimate (see inbreeding.sh script)
-
 command1="-bam data/"$taxon"_list.txt -out temp/"$taxon" -doMajorMinor 1 -doMaf 1 -indF data/$taxon.indF -doSaf 2 -uniqueOnly 0 -anc data/TRIP.fa.gz -minMapQ $minMapQ -minQ 20 -nInd $nInd -minInd $minInd -baq 1 -ref /home/jri/genomes/Zea_mays.AGPv2.17.dna.toplevel.fa -GL $glikehood -P $cpu  $range"
 echo $command1
 $angsdir/angsd $command1
