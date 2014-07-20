@@ -10,3 +10,4 @@
 angsdir=/home/jri/src/angsd0.609
 
 $angsdir/angsd -i /group/jrigrp/hapmap2_bam/Disk3CSHL_bams_bwamem/TDD39103_merged.bam -doFasta 1 -out data/TRIP -P 32
+bwa index data/TRIP.fa.gz
