@@ -17,13 +17,13 @@ windowsize=1000
 step=500
 nInd=$( wc -l data/"$taxon"_list.txt | cut -f 1 -d " " )
 n=$( expr 2 \* $nInd )
-minperc=0.8
+minperc=0.9
 minInd=$( printf "%.0f" $(echo "scale=2;$minperc*$nInd" | bc))
 glikehood=1
 minMapQ=30
 cpu=32
-#range=""
-range="-rf data/rangefile.txt"
+range=""
+#range="-rf data/rangefile.txt"
 
 #(estimate an SFS)
 # -bam list of paths to bamfiles you want to use
